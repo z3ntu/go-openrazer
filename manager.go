@@ -7,6 +7,7 @@ import (
 type Manager struct {
 	DbusConnection *dbus.Conn
 	DbusObject     dbus.BusObject
+	Devices        []*Device
 }
 
 const BusName = "io.github.openrazer1"
@@ -18,10 +19,28 @@ func NewManager() (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	dbusObj := conn.Object(BusName, ManagerPath)
+
+	// Initialize the devices
+	variant, err := dbusObj.GetProperty(ManagerInterface + ".Devices")
+	if err != nil {
+		return nil, err
+	}
+	var devices []*Device
+	for _, path := range variant.Value().([]dbus.ObjectPath) {
+		device, err := NewDevice(conn, path)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, device)
+	}
+
 	mgr := Manager{
 		DbusConnection: conn,
+		DbusObject:     dbusObj,
+		Devices:        devices,
 	}
-	mgr.DbusObject = conn.Object(BusName, ManagerPath)
 
 	return &mgr, nil
 }
@@ -34,18 +53,6 @@ func (mgr *Manager) GetVersion() (string, error) {
 	return variant.String(), nil
 }
 
-func (mgr *Manager) GetDevices() ([]*Device, error) {
-	variant, err := mgr.DbusObject.GetProperty(ManagerInterface + ".Devices")
-	if err != nil {
-		return nil, err
-	}
-	var devices []*Device
-	for _, path := range variant.Value().([]dbus.ObjectPath) {
-		device, err := NewDevice(mgr.DbusConnection, path)
-		if err != nil {
-			return nil, err
-		}
-		devices = append(devices, device)
-	}
-	return devices, nil
+func (mgr *Manager) GetDevices() []*Device {
+	return mgr.Devices
 }

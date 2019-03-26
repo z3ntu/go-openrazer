@@ -20,11 +20,7 @@ func main() {
 	}
 	fmt.Println("Version: ", version)
 
-	devices, err := manager.GetDevices()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to get devices: ", err)
-		os.Exit(1)
-	}
+	devices := manager.GetDevices()
 	for _, device := range devices {
 		serial, err := device.GetSerial()
 		if err != nil {
@@ -33,12 +29,7 @@ func main() {
 		}
 		fmt.Println("Serial: ", serial)
 
-
-		leds, err := device.GetLeds()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to get leds: " , err)
-			os.Exit(1)
-		}
+		leds := device.GetLeds()
 		for _, led := range leds {
 			brightness, err := led.GetBrightness()
 			if err != nil {

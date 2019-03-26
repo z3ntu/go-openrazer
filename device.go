@@ -5,15 +5,32 @@ import "github.com/godbus/dbus"
 type Device struct {
 	DbusConnection *dbus.Conn
 	DbusObject     dbus.BusObject
+	Leds           []*Led
 }
 
 const DeviceInterface = "io.github.openrazer1.Device"
 
 func NewDevice(conn *dbus.Conn, path dbus.ObjectPath) (*Device, error) {
+	dbusObj := conn.Object(BusName, path)
+
+	variant, err := dbusObj.GetProperty(DeviceInterface + ".Leds")
+	if err != nil {
+		return nil, err
+	}
+	var leds []*Led
+	for _, path := range variant.Value().([]dbus.ObjectPath) {
+		led, err := NewLed(conn, path)
+		if err != nil {
+			return nil, err
+		}
+		leds = append(leds, led)
+	}
+
 	dev := Device{
 		DbusConnection: conn,
+		DbusObject:     dbusObj,
+		Leds:           leds,
 	}
-	dev.DbusObject = conn.Object(BusName, path)
 
 	return &dev, nil
 }
@@ -27,18 +44,6 @@ func (dev *Device) GetSerial() (string, error) {
 	return serial, nil
 }
 
-func (dev *Device) GetLeds() ([]*Led, error) {
-	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".Leds")
-	if err != nil {
-		return nil, err
-	}
-	var leds []*Led
-	for _, path := range variant.Value().([]dbus.ObjectPath) {
-		led, err := NewLed(dev.DbusConnection, path)
-		if err != nil {
-			return nil, err
-		}
-		leds = append(leds, led)
-	}
-	return leds, nil
+func (dev *Device) GetLeds() []*Led {
+	return dev.Leds
 }
