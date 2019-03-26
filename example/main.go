@@ -32,5 +32,20 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Serial: ", serial)
+
+
+		leds, err := device.GetLeds()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to get leds: " , err)
+			os.Exit(1)
+		}
+		for _, led := range leds {
+			brightness, err := led.GetBrightness()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Failed to get brightness: ", err)
+				os.Exit(1)
+			}
+			fmt.Println("Brightness: ", brightness)
+		}
 	}
 }
