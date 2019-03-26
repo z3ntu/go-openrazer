@@ -25,5 +25,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Failed to get devices: ", err)
 		os.Exit(1)
 	}
-	fmt.Println("Devices: ", devices)
+	for _, device := range devices {
+		serial, err := device.GetSerial()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to get serial: ", err)
+			os.Exit(1)
+		}
+		fmt.Println("Serial: ", serial)
+	}
 }

@@ -9,6 +9,10 @@ type Manager struct {
 	DbusObject     dbus.BusObject
 }
 
+const BusName = "io.github.openrazer1"
+const ManagerPath = "/io/github/openrazer1"
+const ManagerInterface = "io.github.openrazer1.Manager"
+
 func NewManager() (*Manager, error) {
 	conn, err := dbus.SystemBus()
 	if err != nil {
@@ -17,24 +21,31 @@ func NewManager() (*Manager, error) {
 	mgr := Manager{
 		DbusConnection: conn,
 	}
-	mgr.DbusObject = conn.Object("io.github.openrazer1", "/io/github/openrazer1")
+	mgr.DbusObject = conn.Object(BusName, ManagerPath)
 
 	return &mgr, nil
-
 }
 
 func (mgr *Manager) GetVersion() (string, error) {
-	variant, err := mgr.DbusObject.GetProperty("io.github.openrazer1.Manager.Version")
+	variant, err := mgr.DbusObject.GetProperty(ManagerInterface + ".Version")
 	if err != nil {
 		return "", err
 	}
 	return variant.String(), nil
 }
 
-func (mgr *Manager) GetDevices() ([]dbus.ObjectPath, error) {
-	variant, err := mgr.DbusObject.GetProperty("io.github.openrazer1.Manager.Devices")
+func (mgr *Manager) GetDevices() ([]*Device, error) {
+	variant, err := mgr.DbusObject.GetProperty(ManagerInterface + ".Devices")
 	if err != nil {
 		return nil, err
 	}
-	return variant.Value().([]dbus.ObjectPath), nil
+	var devices []*Device
+	for _, path := range variant.Value().([]dbus.ObjectPath) {
+		device, err := NewDevice(mgr.DbusConnection, path)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, device)
+	}
+	return devices, nil
 }
