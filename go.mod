@@ -1,4 +1,4 @@
-module openrazer
+module github.com/z3ntu/go-openrazer
 
 go 1.12
 
