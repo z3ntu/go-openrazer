@@ -1,6 +1,8 @@
 package openrazer
 
-import "github.com/godbus/dbus"
+import (
+	"github.com/godbus/dbus"
+)
 
 type Device struct {
 	DbusConnection *dbus.Conn
@@ -42,6 +44,31 @@ func (dev *Device) GetSerial() (string, error) {
 		return "", err
 	}
 	return serial, nil
+}
+
+func (dev *Device) GetDPI() (DPI, error) {
+	var dpi DPI
+	err := dev.DbusObject.Call(DeviceInterface+".getDPI", 0).Store(&dpi)
+	if err != nil {
+		return DPI{}, err
+	}
+	return dpi, nil
+}
+
+func (dev *Device) GetSupportedFeatures() ([]string, error) {
+	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".SupportedFeatures")
+	if err != nil {
+		return nil, err
+	}
+	return variant.Value().([]string), nil
+}
+
+func (dev *Device) GetSupportedFx() ([]string, error) {
+	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".SupportedFx")
+	if err != nil {
+		return nil, err
+	}
+	return variant.Value().([]string), nil
 }
 
 func (dev *Device) GetLeds() []*Led {
