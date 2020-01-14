@@ -1,6 +1,6 @@
 package openrazer
 
-import "github.com/godbus/dbus"
+import "github.com/godbus/dbus/v5"
 
 type Led struct {
 	DbusObject dbus.BusObject
