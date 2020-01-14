@@ -43,6 +43,24 @@ func main() {
 			printErrorExit("Failed to get fx: ", err)
 		}
 
+		name, err := device.GetName()
+		if err != nil {
+			printErrorExit("Failed to get name: ", err)
+		}
+		fmt.Println("Name: ", name)
+
+		typestr, err := device.GetType()
+		if err != nil {
+			printErrorExit("Failed to get type: ", err)
+		}
+		fmt.Println("Type: ", typestr)
+
+		matrixdims, err := device.GetMatrixDimensions()
+		if err != nil {
+			printErrorExit("Failed to get matrix dimensions: ", err)
+		}
+		fmt.Println("Matrix dimensions: ", matrixdims)
+
 		serial, err := device.GetSerial()
 		if err != nil {
 			printErrorExit("Failed to get serial: ", err)

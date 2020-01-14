@@ -71,6 +71,31 @@ func (dev *Device) GetSupportedFx() ([]string, error) {
 	return variant.Value().([]string), nil
 }
 
+func (dev *Device) GetName() (string, error) {
+	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".Name")
+	if err != nil {
+		return "", err
+	}
+	return variant.String(), nil
+}
+
+func (dev *Device) GetType() (string, error) {
+	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".Type")
+	if err != nil {
+		return "", err
+	}
+	return variant.String(), nil
+}
+
+func (dev *Device) GetMatrixDimensions() (MatrixDimensions, error) {
+	variant, err := dev.DbusObject.GetProperty(DeviceInterface + ".MatrixDimensions")
+	if err != nil {
+		return MatrixDimensions{}, err
+	}
+	values := variant.Value().([]interface{})
+	return MatrixDimensions{values[0].(uint8), values[1].(uint8)}, nil
+}
+
 func (dev *Device) GetLeds() []*Led {
 	return dev.Leds
 }
