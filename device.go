@@ -46,6 +46,24 @@ func (dev *Device) GetSerial() (string, error) {
 	return serial, nil
 }
 
+func (dev *Device) GetFirmwareVersion() (string, error) {
+	var version string
+	err := dev.DbusObject.Call(DeviceInterface+".getFirmwareVersion", 0).Store(&version)
+	if err != nil {
+		return "", err
+	}
+	return version, nil
+}
+
+func (dev *Device) GetKeyboardLayout() (string, error) {
+	var layout string
+	err := dev.DbusObject.Call(DeviceInterface+".getKeyboardLayout", 0).Store(&layout)
+	if err != nil {
+		return "", err
+	}
+	return layout, nil
+}
+
 func (dev *Device) GetDPI() (DPI, error) {
 	var dpi DPI
 	err := dev.DbusObject.Call(DeviceInterface+".getDPI", 0).Store(&dpi)
@@ -53,6 +71,42 @@ func (dev *Device) GetDPI() (DPI, error) {
 		return DPI{}, err
 	}
 	return dpi, nil
+}
+
+func (dev *Device) SetDPI(dpi DPI) (bool, error) {
+	var ret bool
+	err := dev.DbusObject.Call(DeviceInterface+".setDPI", 0, dpi).Store(&ret)
+	if err != nil {
+		return false, err
+	}
+	return ret, nil
+}
+
+func (dev *Device) GetMaxDPI() (uint16, error) {
+	var maxDPI uint16
+	err := dev.DbusObject.Call(DeviceInterface+".getMaxDPI", 0).Store(&maxDPI)
+	if err != nil {
+		return 0, err
+	}
+	return maxDPI, nil
+}
+
+func (dev *Device) GetPollRate() (uint16, error) {
+	var pollRate uint16
+	err := dev.DbusObject.Call(DeviceInterface+".getPollRate", 0).Store(&pollRate)
+	if err != nil {
+		return 0, err
+	}
+	return pollRate, nil
+}
+
+func (dev *Device) SetPollRate(pollRate uint16) (bool, error) {
+	var ret bool
+	err := dev.DbusObject.Call(DeviceInterface+".setPollRate", 0, pollRate).Store(&ret)
+	if err != nil {
+		return false, err
+	}
+	return ret, nil
 }
 
 func (dev *Device) GetSupportedFeatures() ([]string, error) {
